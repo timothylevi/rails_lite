@@ -8,7 +8,7 @@ class ControllerBase
   attr_reader :params, :req, :res, :name
 
   # setup the controller
-  def initialize(req, res, route_params = {})
+  def initialize(req, res, route_params ="/")
     @req = req
     @res = res
     @name = self.class.to_s.underscore
@@ -20,6 +20,7 @@ class ControllerBase
   def render_content(content, type)
     @res.body = content
     @res.content_type = type
+    session.store_session(@res)
     raise "Already rendered" if already_rendered?
     @already_built_response = true
   end
@@ -33,6 +34,7 @@ class ControllerBase
   def redirect_to(url)
     @res.header["location"] = url
     @res.status = 302
+    session.store_session(@res)
     raise "Already rendered" if already_rendered?
     @already_built_response = true
   end
@@ -47,9 +49,11 @@ class ControllerBase
 
   # method exposing a `Session` object
   def session
+    @session||= Session.new(@req)
   end
 
   # use this with the router to call action_name (:index, :show, :create...)
-  def invoke_action(name)
+  def invoke_action(action_name)
+    send(action_name) || (render action_name)
   end
 end
