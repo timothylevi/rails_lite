@@ -29,23 +29,6 @@ describe Route do
       index_route.matches?(req).should be_false
     end
   end
-
-  describe "#run" do
-    it "instantiates controller and invokes action" do
-      # reader beware. hairy adventures ahead.
-      # this is really checking way too much implementation,
-      # but tests the aproach recommended in the project
-      req.stub(:path) { "/users" }
-      class DummyController; end
-      dummy_controller_class = DummyController
-      dummy_controller_instance = DummyController.new
-      dummy_controller_instance.stub(:invoke_action)
-      dummy_controller_class.stub(:new).with(req, res, {}) { dummy_controller_instance }
-      dummy_controller_instance.should_receive(:invoke_action)
-      index_route = Route.new(Regexp.new("^/users$"), :get, dummy_controller_class, :index)
-      index_route.run(req, res)
-    end
-  end
 end
 
 describe Router do
@@ -69,24 +52,6 @@ describe Router do
       req.stub(:request_method) { :get }
       matched = subject.match(req)
       matched.should_not be_nil
-    end
-
-    it "doesn't match an incorrect route" do
-      subject.add_route(Regexp.new("^/users$"), :get, :x, :x)
-      req.stub(:path) { "/incorrect_path" }
-      req.stub(:request_method) { :get }
-      matched = subject.match(req)
-      matched.should be_nil
-    end
-  end
-
-  describe "#run" do
-    it "sets status to 404 if no route is found" do
-      subject.add_route(1, 2, 3, 4)
-      req.stub(:path) { "/users" }
-      req.stub(:request_method) { :get }
-      subject.run(req, res)
-      res.status.should == 404
     end
   end
 

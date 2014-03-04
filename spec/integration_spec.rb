@@ -22,24 +22,6 @@ describe "the symphony of things" do
     end
   end
 
-  describe "routes and params" do
-    it "route instantiates controller and calls invoke action" do
-      route = Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_render)
-      req.stub(:path) { "/statuses/1" }
-      req.stub(:request_method) { :get }
-      route.run(req, res)
-      res.body.should == "testing"
-    end
-
-    it "route adds to params" do
-      route = Route.new(Regexp.new("^/statuses/(?<id>\\d+)$"), :get, Ctrlr, :route_does_params)
-      req.stub(:path) { "/statuses/1" }
-      req.stub(:request_method) { :get }
-      route.run(req, res)
-      res.body.should == "got #1"
-    end
-  end
-
   describe "controller sessions" do
     let(:ctrlr) { Ctrlr.new(req, res) }
 
